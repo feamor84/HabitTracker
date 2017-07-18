@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import pl.bartekpawlowski.habittracker.data.HabitTrackerContract.HabitTrackerEntry;
 import pl.bartekpawlowski.habittracker.data.HabitTrackerDbHelper;
 
@@ -39,16 +42,35 @@ public class HabitTracker extends AppCompatActivity {
             int isFinishedColumnIndex = results.getColumnIndex(HabitTrackerEntry.IS_HABIT_FINISHED);
 
             while (results.moveToNext()) {
+                String isFinished = "";
+                switch (results.getInt(isFinishedColumnIndex)) {
+                    case HabitTrackerEntry.HABIT_NOT_FINISHED:
+                        isFinished = getString(R.string.in_progress);
+                        break;
+                    case HabitTrackerEntry.HABIT_FINISHED:
+                        isFinished = getString(R.string.finished);
+                        break;
+
+                }
+
                 Log.i(LOG_TAG,
                         "Habit: "
                                 + results.getString(nameColumnIndex) + ", "
-                                + results.getInt(startTimeColumnIndex) + ", "
-                                + results.getInt(durationColumnIndex) + ", "
-                                + results.getInt(isFinishedColumnIndex) + "\n"
+                                + makeDateFromTimestamp(results.getInt(startTimeColumnIndex)) + ", "
+                                + makeDateFromTimestamp(results.getInt(durationColumnIndex)) + ", "
+                                + isFinished + "\n"
                 );
             }
         } finally {
             results.close();
         }
+    }
+
+    private String makeDateFromTimestamp(int timestamp) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy, HH:mm");
+
+        long time = 1500412431;
+
+        return simpleDateFormat.format(new Date(timestamp * 1000L));
     }
 }
